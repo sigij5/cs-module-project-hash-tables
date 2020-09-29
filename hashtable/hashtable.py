@@ -24,7 +24,8 @@ class HashTable:
         # Your code here
         self.capacity = capacity
         # self.bucket_array = [None for i in range(capacity)]
-        self.table = [None for i in range(capacity)]
+        self.table = [None] * capacity
+        self.items = 0
 
 
     def get_num_slots(self):
@@ -38,6 +39,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        return self.capacity
         
 
 
@@ -48,6 +50,12 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        # items = 0
+        # for i in range(self.capacity):
+        #     if self.table[i] is not None:
+        #         items += 1
+        return self.items / len(self.table)
+                    
 
 
     def fnv1(self, key):
@@ -106,7 +114,17 @@ class HashTable:
         """
         # Your code here
         index = self.hash_index(key)
-        self.table[index] = HashTableEntry(key, value)
+        if self.table[index]:
+            new_entry = HashTableEntry(key, value)
+            new_entry.next = self.table[index]
+            self.table[index] = new_entry
+            self.items += 1
+            # print(self.table)
+            # if self.get_load_factor() > 0.7:
+            #     self.resize(self.capacity * 2)
+        else:
+            self.table[index] = HashTableEntry(key, value)
+
 
 
 
@@ -120,10 +138,25 @@ class HashTable:
         """
         # Your code here
         index = self.hash_index(key)
-        if self.table[index]:
-            self.table[index].value = None
+        cur = self.table[index]
+        while cur:
+            if cur.key == key:
+                cur.value = None
+                cur.next = None
+                self.items -= 1
+                return
+            if cur.next and cur.next.key == key:
+                cur.next = cur.next.next
+            cur = cur.next
+        
+
+
+        # if self.table[index]:  // day 1
+        #     self.table[index].value = None
         else:
             print("Key not found") 
+
+        
 
 
     def get(self, key):
@@ -136,11 +169,20 @@ class HashTable:
         """
         # Your code here
         index = self.hash_index(key)
-        if self.table[index]:
-            hash_entry = self.table[index]
-            return hash_entry.value
-        else:
-            return None
+        current = self.table[index]
+        # if self.table[index]:     //day 1
+        #     hash_entry = self.table[index]
+        #     return hash_entry.value
+        #     else:
+        while current:
+            if current.key == key:
+                return current.value
+            else:
+                current = self.table[index].next
+        return None;
+
+        # else:
+        #     return None    //day 1
 
 
     def resize(self, new_capacity):
@@ -150,8 +192,16 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-
+        old_table = self.table
+        self.capacity = new_capacity
+        self.table = [None] * new_capacity
+        # for i in range(len(old_table)):
+        #     cur = old_table[i]
+        for i in old_table:
+            cur = i
+            while cur:
+                self.put(cur.key, cur.value)
+                cur = cur.next
 
 
 if __name__ == "__main__":
