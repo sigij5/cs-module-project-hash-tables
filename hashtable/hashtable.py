@@ -198,10 +198,9 @@ class HashTable:
         # for i in range(len(old_table)):
         #     cur = old_table[i]
         for i in old_table:
-            cur = i
-            while cur:
-                self.put(cur.key, cur.value)
-                cur = cur.next
+            while i:
+                self.put(i.key, i.value)
+                i = i.next
 
 
 if __name__ == "__main__":
